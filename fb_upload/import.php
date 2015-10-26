@@ -33,13 +33,8 @@
 <table>
     <tr>
         <td><label>Image Location</label></td>
-        <td><input id="img_path" value="" type="text" size="40"></br> </td>
+        <td><input id="img_path" value="C:\AppServ\www\fb_upload\image" type="text" size="40"></br> </td>
         <td><button id="img_browse">Browse</button></td>
-    </tr>
-    <tr>
-        <td><label>Excel(Csv) Location</label></td>
-        <td><input id="csv_path" value="" type="text" size="40"></br> </td>
-        <td><button id="csv_browse">Browse</button></td>
     </tr>
 </table>
 

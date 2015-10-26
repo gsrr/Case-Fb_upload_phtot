@@ -14,7 +14,13 @@
     <script>
         function showInfo()
         {
-            alert("showInfo");
+            var $dia;
+            alert("showImage");
+            var paras = [];
+            paras['url'] = "./show.html";
+            paras['button'] = {};
+            $dia = createDialog(paras);
+            $dia.dialog("open");
         }
         function importDialog() {
             var $dia;
