@@ -1,0 +1,3 @@
+prog=fileManager
+op=listDir
+path=/home/jerryc/public_html/image2/
