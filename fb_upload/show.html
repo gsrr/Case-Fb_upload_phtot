@@ -38,7 +38,7 @@
             var data = {
                 "prog": "fileManager",
                 "op": "listDir",
-                "path" : $("#img_path").val(), 
+                "path" : "fb_upload\\image" 
             };
             console.log(data);
             callPython(data, function(ret){
@@ -90,16 +90,58 @@
         {
             $( "#csvfile" ).trigger( "click" );
         }
+        function createAlbum()
+        {
+            var data = {
+                "prog": "fbOperation",
+                "op": "create_album",
+                "token" : $("#token").val(),
+                "id_group" : $("#id_group").val(),
+                "name_album" : $("#name_album").val(),
+                "msg_album" : $("#msg_album").val()
+                
+            };
+            console.log(data);
+             callPython(data, function(ret){
+                console.log(ret);
+             });
+        }
         $("document").ready(function(){
             init_image();
             $("#import_csv").click(importCSV);
             document.getElementById('csvfile').addEventListener('change', readCsvFile, false);
+            $("#create_album").click(createAlbum);
         });
     </script>
 </head>
 <body>
-<button id="import_csv">import csv(excel) file</button><br/>
-<input id="csvfile" type="file" style="display:none"/>
+<table>
+     <tr>
+        <td><a href="https://developers.facebook.com/tools/explorer/145634995501895/"  target="_blank">access_token</a></td>
+        <td><input id="token" type="text" size="80"/></td>
+    </tr>
+    <tr>
+        <td>Group url</td>
+        <td><input id="id_group" type="text" size="80"/></td>
+    </tr>
+    <tr>
+        <td>Name of album</td>
+        <td><input id="name_album" type="text" size="30"/></td>
+    </tr>
+    <tr>
+        <td>message of album</td>
+        <td><input id="msg_album" type="text" size="30"/></td>
+    </tr>
+    <tr>
+        <td colspan="2" align="left">
+            <button id="create_album">Create Album</button>
+            <button id="import_csv">import csv(excel) file</button>
+            <input id="csvfile" type="file" style="display:none"/>
+            <button id="upload_all">upload all photos</button><br/>
+        </td>
+    </tr>
+</table>
+
 <table id="image_table" width="50%">
 <tbody>
 </tbody>
