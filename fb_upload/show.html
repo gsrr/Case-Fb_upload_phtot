@@ -33,6 +33,22 @@
     </style>
     <script src="../js/callPython.js"></script>
     <script>
+        function removeRow()
+        {
+            var index = $(this).attr("id").split("_")[1];
+            
+            if($(this).html() == "delete")
+            {
+                $("#img_" + index).css("background-color", "plum");
+                $(this).html("add");
+            }
+            else
+            {
+                $("#img_" + index).css("background-color", "OldLace");
+                $(this).html("delete");
+            }
+          
+        }
         function init_image()
         {
             var data = {
@@ -48,10 +64,12 @@
                 for(var i = 0 ; i < files.length ; i += 2)
                 {
                      $("#image_table").find('tbody').append($('<tr>').attr('id', 'img_' + i));
-                     $("#img_" + i).append($('<td>').append($('<img>').addClass("imgsize").attr('src', files[i])));
-                     $("#img_" + i).append($('<td>').append($('<img>').addClass("imgsize").attr('src', files[i + 1])));
+                     $("#img_" + i).append($('<td>').append($('<img>').attr('id', 'src_' + i).addClass("imgsize").attr('src', files[i])));
+                     $("#img_" + i).append($('<td>').append($('<img>').attr('id', 'src_' + (i + 1)).addClass("imgsize").attr('src', files[i + 1])));
                      $("#img_" + i).append($('<td>').append($("<p>").attr('id', 'p_' + i)));
-                     $("#img_" + i).append($('<td>').append($("<button>").html("upload").attr('id', 'btn_' + i)));
+                     $("#img_" + i).append($('<td>').append($("<button>").html("delete").attr('id', 'delbtn_' + i)));
+                     $("#img_" + i).css("background-color", "OldLace")
+                     $("#delbtn_" + i).click(removeRow);
                     
                 }
                 
@@ -104,40 +122,79 @@
             console.log(data);
              callPython(data, function(ret){
                 console.log(ret);
+                alert(ret)
              });
+        }
+        function upload_photo(img_id)
+        {
+            var id = parseInt(img_id.split("_")[1]);
+            var data = {
+                "prog": "fbOperation",
+                "op": "upload_photo",
+                "token" : $("#token").val(),
+                "url_album" : $("#url_album").val(),
+                "src1" : $("#src_" + id).attr("src"),
+                "src2" : $("#src_" + (id + 1)).attr("src"),
+                "desc" : $("#p_" + id).html().replace(/\n/g, "<br>"),
+            };
+            console.log(data);
+             callPython(data, function(ret){ // async : False
+                console.log(ret);
+                alert(ret);
+             });
+        }
+        function upload_allPhoto()
+        {
+            alert("upload_allphotot");
+            $("#image_table").find("tbody>tr").each(function(){
+                var bg_color = $(this).css("background-color");
+                if(bg_color == "rgb(253, 245, 230)")
+                {
+                    var img_id = $(this).attr("id");
+                    upload_photo(img_id);   
+                    
+                }
+            });
+        }
+        function clearValue()
+        {
+            $(this).val("").css("color", "black");
         }
         $("document").ready(function(){
             init_image();
             $("#import_csv").click(importCSV);
             document.getElementById('csvfile').addEventListener('change', readCsvFile, false);
             $("#create_album").click(createAlbum);
+            $("#upload_allPhoto").click(upload_allPhoto);
+            $(".input_text").click(clearValue);
         });
     </script>
 </head>
 <body>
 <table>
      <tr>
-        <td><a href="https://developers.facebook.com/tools/explorer/145634995501895/"  target="_blank">access_token</a></td>
+        <td><a href="https://developers.facebook.com/tools/explorer/145634995501895/"  target="_blank">Access_token</a></td>
         <td><input id="token" type="text" size="80"/></td>
     </tr>
     <tr>
-        <td>Group url</td>
-        <td><input id="id_group" type="text" size="80"/></td>
+        <td rowspan="3"><button id="create_album">Create album</button></td>
+        <td><input id="id_group" type="text" size="80" value="Url of group" style="color:#bbb" class="input_text"/></td>
     </tr>
     <tr>
-        <td>Name of album</td>
-        <td><input id="name_album" type="text" size="30"/></td>
+        <td><input id="name_album" type="text" size="80" value="Name of album" style="color:#bbb" class="input_text"/></td>
     </tr>
     <tr>
-        <td>message of album</td>
-        <td><input id="msg_album" type="text" size="30"/></td>
+        <td><input id="msg_album" type="text" size="80" value="message of album" style="color:#bbb" class="input_text"/></td>
+    </tr>
+    <tr>
+        <td><button id="upload_allPhoto">Upload all photos</button></td>
+        <td><input id="url_album" type="text" size="80" value="Url of album" style="color:#bbb" class="input_text"/></td>
     </tr>
     <tr>
         <td colspan="2" align="left">
-            <button id="create_album">Create Album</button>
-            <button id="import_csv">import csv(excel) file</button>
+            
+            <button id="import_csv">Import csv(excel) file</button>
             <input id="csvfile" type="file" style="display:none"/>
-            <button id="upload_all">upload all photos</button><br/>
         </td>
     </tr>
 </table>
