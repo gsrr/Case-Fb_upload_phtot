@@ -30,6 +30,9 @@
         p{
             width:300px;
         }
+        #progressbar > .ui-progressbar-value {
+           background: green;
+        }
     </style>
     <script src="../js/callPython.js"></script>
     <script>
@@ -140,20 +143,28 @@
             console.log(data);
              callPython(data, function(ret){ // async : False
                 console.log(ret);
-                alert(ret);
-             });
+                //alert(ret);
+             }, false);
         }
         function upload_allPhoto()
         {
             alert("upload_allphotot");
+            var max = $("#image_table").find("tbody>tr").length;
+            var cnt = 0;
             $("#image_table").find("tbody>tr").each(function(){
+                cnt += 1;
                 var bg_color = $(this).css("background-color");
                 if(bg_color == "rgb(253, 245, 230)")
                 {
                     var img_id = $(this).attr("id");
                     upload_photo(img_id);   
                     
+                    
                 }
+                 $( "#progressbar" ).progressbar({
+                  value: cnt,
+                  max :  max
+                });
             });
         }
         function clearValue()
@@ -167,10 +178,60 @@
             $("#create_album").click(createAlbum);
             $("#upload_allPhoto").click(upload_allPhoto);
             $(".input_text").click(clearValue);
+            $( "#progressbar" ).progressbar({
+                  value: 0
+            });
         });
+        function statusChangeCallback(response) {
+            var access_token =   FB.getAuthResponse()['accessToken'];
+            $("#token").val(access_token);
+          }
+        function checkLoginState() {
+            
+            FB.getLoginStatus(function(response) {
+              statusChangeCallback(response);
+            });
+        } 
+        window.fbAsyncInit = function() {
+          FB.init({
+            appId      : '846098992173062',
+            cookie     : true,  // enable cookies to allow the server to access 
+                                // the session
+            xfbml      : true,  // parse social plugins on this page
+            version    : 'v2.5' // use version 2.2
+          });
+
+          // Now that we've initialized the JavaScript SDK, we call 
+          // FB.getLoginStatus().  This function gets the state of the
+          // person visiting this page and can return one of three states to
+          // the callback you provide.  They can be:
+          //
+          // 1. Logged into your app ('connected')
+          // 2. Logged into Facebook, but not your app ('not_authorized')
+          // 3. Not logged into Facebook and can't tell if they are logged into
+          //    your app or not.
+          //
+          // These three cases are handled in the callback function.
+
+          FB.getLoginStatus(function(response) {
+            statusChangeCallback(response);
+          });
+
+          }; 
+          
+          (function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+          }(document, 'script', 'facebook-jssdk')); 
+          
     </script>
 </head>
 <body>
+<fb:login-button scope="public_profile,email,publish_actions,user_managed_groups" onlogin="checkLoginState();">
+</fb:login-button> 
 <table>
      <tr>
         <td><a href="https://developers.facebook.com/tools/explorer/145634995501895/"  target="_blank">Access_token</a></td>
@@ -198,6 +259,7 @@
         </td>
     </tr>
 </table>
+<div id="progressbar"></div>
 
 <table id="image_table" width="50%">
 <tbody>
