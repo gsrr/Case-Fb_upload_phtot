@@ -4,12 +4,18 @@ import os
 import json
 import shutil
 
+def deleteAllPhotos(paras):
+    files = os.listdir(paras['path'])
+    for file in files:
+        path = paras['path'] + "/" + file
+        os.remove(path)
+        
+    print json.dumps("delete ok")
+
 def browseDir(paras):
     dirs = []
     files = os.listdir(paras['path'])
     for file in files:
-        path = paras['path'] + file
-        if os.path.isdir(path):
             dirs.append(path.decode("big5"))
     #print dirs
     print json.dumps(dirs)
@@ -25,14 +31,15 @@ def listDir(paras):
     #copy files
     #copyFiles(paras['path'], "image")
     for file in files:
-        data.append("image/" + file)
-    print json.dumps(sorted(data))
+	if "DS_Store" not in file:
+        	data.append("image/" + file)
+    print json.dumps(sorted(data, reverse=True))
 
 def readCsv(paras):
     files = os.listdir(paras['path'])
     #copy files
     for file in files:
-        data.append("/fb_upload/image/" + file)
+        data.append("./image/" + file)
     print json.dumps(data)
     
 def main():

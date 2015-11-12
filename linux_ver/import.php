@@ -25,18 +25,20 @@
   $("document").ready(function(){
     $("#img_browse").click(img_browse);
     $("#csv_browse").click(csv_browse);
-    //document.getElementById('my_form').target = 'my_iframe';
+    $('#myform').prop("target", 'my_iframe');
   });
 </script>
+<script src="./js/callPython.js"></script>
+<form id="myform" action="upload.php" method="post" enctype="multipart/form-data">
+    Select photo to upload:
+    <input type="file" name="fileToUpload[]" id="fileToUpload" multiple></br></br>
 
-<br/>
-<table>
-    <tr>
-        <td><label>Image Location</label></td>
-        <td><input id="img_path" value="/home/jerryc/public_html/image2/" type="text" size="40"></br> </td>
-        <td><button id="img_browse">Browse</button></td>
-    </tr>
-</table>
+    </br>  
+    <input id="file_submit" type="submit" name="submit" value="Upload"/></br>  
+    </br>
+    <iframe id='my_iframe' name='my_iframe' src="" width="500">    
+    
+</form>
 
 
 </body>

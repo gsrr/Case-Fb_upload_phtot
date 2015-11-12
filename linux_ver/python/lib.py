@@ -1,5 +1,5 @@
 def paraSplit(line):
-    arr = line.split("=")
+    arr = line.split("=",1)
     return (arr[0],arr[1])
     
     

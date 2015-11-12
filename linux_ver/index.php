@@ -22,12 +22,25 @@
             $dia = createDialog(paras);
             $dia.dialog("open");
         }
+        
+        function deleteAllPhotos()
+         {
+            var data = {
+                "prog": "fileManager",
+                "op": "deleteAllPhotos",
+                "path" : "./image" 
+            };
+            callPython(data, function(ret){
+                alert(ret);
+            });
+         }
         function importDialog() {
             var $dia;
             var paras = [];
             paras['url'] = "./import.php";
             paras['button'] = {
-                "Show" : showInfo,
+                "deletePhotos" : deleteAllPhotos,
+                "Show" : showInfo,  
             };
             $dia = createDialog(paras);
             $dia.dialog("open");
@@ -38,12 +51,16 @@
             $("#import").click(function() {
                 importDialog();
             });
+            $("#phpinfo").click(function() {
+                window.location.href = "./phpinfo.php"
+            });
         });
     </script>
 </head>
 
 <body>
     <button id="import">Import</button>
+    <button id="phpinfo">phpinfo</button>
 </body>
 
 </html>

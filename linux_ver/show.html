@@ -21,8 +21,9 @@
 		
 		.imgsize
 		{
-			height: 300px ;
-            width: 300px;
+			height: 191px ;
+            width: 289px;
+            image-orientation: from-image;
 		}
         table, th, td {
            border: 1px solid black;
@@ -30,15 +31,34 @@
         p{
             width:300px;
         }
+        #progressbar > .ui-progressbar-value {
+           background: green;
+        }
     </style>
-    <script src="js/callPython.js"></script>
+    <script src="./js/callPython.js"></script>
     <script>
+        function removeRow()
+        {
+            var index = $(this).attr("id").split("_")[1];
+            
+            if($(this).html() == "delete")
+            {
+                $("#img_" + index).css("background-color", "plum");
+                $(this).html("add");
+            }
+            else
+            {
+                $("#img_" + index).css("background-color", "OldLace");
+                $(this).html("delete");
+            }
+          
+        }
         function init_image()
         {
             var data = {
                 "prog": "fileManager",
                 "op": "listDir",
-                "path" : $("#img_path").val(), 
+                "path" : "./image" 
             };
             console.log(data);
             callPython(data, function(ret){
@@ -48,10 +68,12 @@
                 for(var i = 0 ; i < files.length ; i += 2)
                 {
                      $("#image_table").find('tbody').append($('<tr>').attr('id', 'img_' + i));
-                     $("#img_" + i).append($('<td>').append($('<img>').addClass("imgsize").attr('src', files[i])));
-                     $("#img_" + i).append($('<td>').append($('<img>').addClass("imgsize").attr('src', files[i + 1])));
+                     $("#img_" + i).append($('<td>').append($('<img>').attr('id', 'src_' + i).addClass("imgsize").attr('src', files[i])));
+                     $("#img_" + i).append($('<td>').append($('<img>').attr('id', 'src_' + (i + 1)).addClass("imgsize").attr('src', files[i + 1])));
                      $("#img_" + i).append($('<td>').append($("<p>").attr('id', 'p_' + i)));
-                     $("#img_" + i).append($('<td>').append($("<button>").html("upload").attr('id', 'btn_' + i)));
+                     $("#img_" + i).append($('<td>').append($("<button>").html("delete").attr('id', 'delbtn_' + i)));
+                     $("#img_" + i).css("background-color", "OldLace")
+                     $("#delbtn_" + i).click(removeRow);
                     
                 }
                 
@@ -90,16 +112,158 @@
         {
             $( "#csvfile" ).trigger( "click" );
         }
+        function createAlbum()
+        {
+            var data = {
+                "prog": "fbOperation",
+                "op": "create_album",
+                "token" : $("#token").val(),
+                "id_group" : $("#id_group").val(),
+                "name_album" : $("#name_album").val(),
+                "msg_album" : $("#msg_album").html()
+                
+            };
+            console.log(data);
+             callPython(data, function(ret){
+                console.log(ret);
+                alert(ret)
+             });
+        }
+        function upload_photo(img_id)
+        {
+            var id = parseInt(img_id.split("_")[1]);
+            var data = {
+                "prog": "fbOperation",
+                "op": "upload_photo",
+                "token" : $("#token").val(),
+                "url_album" : $("#url_album").val(),
+                "src1" : $("#src_" + id).attr("src"),
+                "src2" : $("#src_" + (id + 1)).attr("src"),
+                "desc" : $("#p_" + id).html().replace(/\n/g, "<br>"),
+            };
+            console.log(data);
+             callPython(data, function(ret){ // async : False
+                console.log(ret);
+                //alert(ret);
+             }, false);
+        }
+        function upload_allPhoto()
+        {
+            alert("upload_allphotot");
+            var max = $("#image_table").find("tbody>tr").length;
+            var cnt = 0;
+            $("#image_table").find("tbody>tr").each(function(){
+                cnt += 1;
+                var bg_color = $(this).css("background-color");
+                if(bg_color == "rgb(253, 245, 230)")
+                {
+                    var img_id = $(this).attr("id");
+                    upload_photo(img_id);   
+                    
+                    
+                }
+                 $( "#progressbar" ).progressbar({
+                  value: cnt,
+                  max :  max
+                });
+            });
+        }
+        function clearValue()
+        {
+            $(this).val("").css("color", "black");
+            $(this).html("").css("color", "black");
+        }
         $("document").ready(function(){
             init_image();
             $("#import_csv").click(importCSV);
             document.getElementById('csvfile').addEventListener('change', readCsvFile, false);
+            $("#create_album").click(createAlbum);
+            $("#upload_allPhoto").click(upload_allPhoto);
+            $(".input_text").click(clearValue);
+            $( "#progressbar" ).progressbar({
+                  value: 0
+            });
         });
+        function statusChangeCallback(response) {
+            var access_token =   FB.getAuthResponse()['accessToken'];
+            $("#token").val(access_token);
+          }
+        function checkLoginState() {
+            
+            FB.getLoginStatus(function(response) {
+              statusChangeCallback(response);
+            });
+        } 
+        window.fbAsyncInit = function() {
+          FB.init({
+            appId      : '846098992173062',
+            cookie     : true,  // enable cookies to allow the server to access 
+                                // the session
+            xfbml      : true,  // parse social plugins on this page
+            version    : 'v2.5' // use version 2.2
+          });
+
+          // Now that we've initialized the JavaScript SDK, we call 
+          // FB.getLoginStatus().  This function gets the state of the
+          // person visiting this page and can return one of three states to
+          // the callback you provide.  They can be:
+          //
+          // 1. Logged into your app ('connected')
+          // 2. Logged into Facebook, but not your app ('not_authorized')
+          // 3. Not logged into Facebook and can't tell if they are logged into
+          //    your app or not.
+          //
+          // These three cases are handled in the callback function.
+
+          FB.getLoginStatus(function(response) {
+            statusChangeCallback(response);
+          });
+
+          }; 
+          
+          (function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+          }(document, 'script', 'facebook-jssdk')); 
+          
     </script>
 </head>
 <body>
-<button id="import_csv">import csv(excel) file</button><br/>
-<input id="csvfile" type="file" style="display:none"/>
+<fb:login-button scope="user_photos,public_profile,email,publish_actions,user_managed_groups" onlogin="checkLoginState();">
+</fb:login-button> 
+<table>
+     <tr>
+        <td><a href="https://developers.facebook.com/tools/explorer/145634995501895/"  target="_blank">Access_token</a></td>
+        <td><input id="token" type="text" size="80"/></td>
+    </tr>
+    <tr>
+        <td rowspan="3"><button id="create_album">Create album</button></td>
+        <td><input id="id_group" type="text" size="80" value="Url of group" style="color:#bbb" class="input_text"/></td>
+    </tr>
+    <tr>
+        <td><input id="name_album" type="text" size="80" value="Name of album" style="color:#bbb" class="input_text"/></td>
+    </tr>
+    <tr>
+        <!-- <td><input id="msg_album" type="text" size="80" value="message of album" style="color:#bbb" class="input_text"/></td> -->
+        <td><textarea id="msg_album" rows="4" cols="50" style="color:#bbb" class="input_text">message of album</textarea></td>
+    </tr>
+    <tr>
+        <td><button id="upload_allPhoto">Upload all photos</button></td>
+        <td><input id="url_album" type="text" size="80" value="Url of album" style="color:#bbb" class="input_text"/></td>
+    </tr>
+    <tr>
+        <td colspan="2" align="left">
+            
+            <button id="import_csv">Import csv(excel) file</button>
+            <input id="csvfile" type="file" style="display:none"/>
+        </td>
+    </tr>
+</table>
+<div id="progressbar"></div>
+
 <table id="image_table" width="50%">
 <tbody>
 </tbody>
